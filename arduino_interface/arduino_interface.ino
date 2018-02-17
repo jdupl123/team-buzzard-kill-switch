@@ -58,20 +58,28 @@ MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
                                                  DEBUG); // gear selector
 // Setup Steering Controller
 
-int steeringEncoderPin = 6; // NOT SURE ACTUALLY
-int steeringServoPin = 12;  // NOT SURE ACTUALLY
+int steeringEncoderPin = 2; 
+int steeringServoPin = 11;  
 float steeringAlpha = 5;
 float steeringBasePos = 5;
 
-//MotorController steeringController = MotorController(steeringEncoderPin, steeringServoPin,
-//                                                     steeringAlpha, steeringBasePos);
+MotorController steeringController = MotorController(steeringEncoderPin, steeringServoPin,
+                                                     steeringAlpha, steeringBasePos, 
+                                                     DEBUG);
 
 
 
 
+// Setup Throttle Controller
+
+int throttleServoPin = 22;
+
+// Setup Ignition
+int ignitionPin = 4;
 
 
-
+// Setup Starter
+int starterPin = 3;
 
 
 // Setup ROS
@@ -79,33 +87,39 @@ float steeringBasePos = 5;
 // DEFINE Callbacks
 
 // Throttle servo setup
-Servo servo;
+Servo throttleServo;
 
 void throttle_cb( const std_msgs::Int16& throttle_cmd){ 
-  servo.write(map(throttle_cmd.data, 0, 255, MIN_THROTTLE, MAX_THROTTLE));
+  throttleServo.write(map(throttle_cmd.data, 0, 255, MIN_THROTTLE, MAX_THROTTLE));
 }
 
 void steering_cb( const std_msgs::Int16& steering_cmd){
-  // Do whatever
-  //print(steering_cmd.data) 
+  steeringController.desP = steering_cmd.data;
 }
 
 void ignition_cb( const std_msgs::Int16& ignition_cmd){
   if (ignition_cmd.data > 0) {
-    digitalWrite(3, HIGH);
+    digitalWrite(ignitionPin, HIGH);
   } else {
-    digitalWrite(3, LOW);
+    digitalWrite(ignitionPin, LOW);
   }
 }
 
 void gear_cb(const std_msgs::Int16& gear_cmd){
-  
+  gearController.desP = gear_cmd.data;
 }
 
 void brake_cb(const std_msgs::Int16& brake_cmd){
-  
+  brakeController.desP = brake_cmd.data;
 }
 
+void starter_cb(const std_msgs::Int16& starter_cmd) {
+    if (starter_cmd.data > 0) {
+    digitalWrite(starterPin, HIGH);
+  } else {
+    digitalWrite(starterPin, LOW);
+  }
+}
 
 //
 
@@ -114,24 +128,42 @@ void brake_cb(const std_msgs::Int16& brake_cmd){
 ros::Subscriber<std_msgs::Int16> sub_throttle("throttle", &throttle_cb);
 ros::Subscriber<std_msgs::Int16> sub_steering("steering", &steering_cb);
 ros::Subscriber<std_msgs::Int16> sub_ignition("ignition", &ignition_cb);
-ros::Subscriber<std_msgs::Int16> sub_throttle("gear", &gear_cb);
-ros::Subscriber<std_msgs::Int16> sub_throttle("brake", &brake_cb);
+ros::Subscriber<std_msgs::Int16> sub_gear("gear", &gear_cb);
+ros::Subscriber<std_msgs::Int16> sub_brake("brake", &brake_cb);
+ros::Subscriber<std_msgs::Int16> sub_starter("starter", &starter_cb);
 
 
 
 
 void setup(){
 
+
+  brakeController.attach_servo();
+  brakeController.basePos = 380;
+  
+  gearController.attach_servo();
+  
+  steeringController.attach_servo();
+
+  // Setup Throttle.
+  throttleServo.attach(throttleServoPin); // throttle on pin 22
+  pinMode(ignitionPin, OUTPUT);
+  pinMode(starterPin, OUTPUT);
+  
   nh.initNode();
   nh.subscribe(sub_throttle);
   nh.subscribe(sub_steering);
   nh.subscribe(sub_ignition);
-  
-  servo.attach(22); // throttle on pin 22
-  pinMode(3, OUTPUT);
+  nh.subscribe(sub_gear);
+  nh.subscribe(sub_brake);  
+  nh.subscribe(sub_starter);  
+
 }
 
 void loop(){
   nh.spinOnce();
-  delay(1);
+  brakeController.update_motor(); 
+  gearController.update_motor();
+  steeringController.update_motor();
+  delay(50);
 }
