@@ -3,8 +3,6 @@
 
 bool DEBUG = true;
 
-
-
 class MotorController
 {
   public: 
@@ -16,17 +14,18 @@ class MotorController
       debug = d;
       maxPos = 1024;
       basePos = bP;
+      desP = basePos;
      };
-     void update_motor(int desP);
+     void update_motor();
      
      void attach_servo()
      {
-      servo.attach(motorEncoderPin);
+      servo.attach(motorServoPin);
      };
 
      float maxPos; // max setting
      float basePos; // ADC measurement when fully retracted.
-
+     float desP; // Set desired position. 
      
   private:
      Servo servo;
@@ -37,30 +36,8 @@ class MotorController
 
 };
 
-MotorController brakeController = MotorController(0, 9, 5., 0, DEBUG); // brake
-MotorController gearController = MotorController(1, 10, 5., 0, DEBUG); // gear selector
-// MotorController steeringController = MotorController(2 , 11, 5, 0, DEBUG); // to check
 
-void setup() {
-  Serial.begin(115200); 
-  brakeController.attach_servo();
-  gearController.attach_servo();
-  // steeringController.attach_servo();
-  gearController.basePos = 100;
-
-
-};
-
-void loop() {
-  brakeController.update_motor(600); 
-  gearController.update_motor(600);
-// steeringController.update_motor(600);
-  
-  delay(100);
-}
-
-
-void MotorController::update_motor(int desP)
+void MotorController::update_motor()
 {
  //desP is a number between 0 and 255
   int mPos;
@@ -99,6 +76,30 @@ void MotorController::update_motor(int desP)
   }
 
   servo.write(int(output));
-
   
 };
+
+
+MotorController brakeController = MotorController(0, 9, 5., 0, DEBUG); // brake
+MotorController gearController = MotorController(1, 10, 5., 0, DEBUG); // gear selector
+// MotorController steeringController = MotorController(2 , 11, 5, 0, DEBUG); // to check
+
+void setup() {
+  Serial.begin(115200); 
+  brakeController.attach_servo();
+  gearController.attach_servo();
+  // steeringController.attach_servo();
+  gearController.basePos = 100;
+  
+
+};
+
+void loop() {
+  brakeController.update_motor(); 
+  gearController.update_motor();
+// steeringController.update_motor(600);
+  
+  delay(100);
+}
+
+
