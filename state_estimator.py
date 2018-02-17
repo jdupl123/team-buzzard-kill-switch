@@ -20,7 +20,7 @@ class StateEstimator:
 
 			fixed = parts[6]
 			num_satellites = parts[7]
-			if int(fixed) == 1 and int(num_satellites) > 6:
+			if int(fixed) > 0 and int(num_satellites) > 6:
 				self.state['fixed'] = True
 				print("updated state to fixed")
 				# TODO: predict new state from old state?
@@ -34,12 +34,12 @@ class StateEstimator:
 		# TODO: fuzzy string matching in case the string is messy? gps_string.split(',')[0].lower()
 			parts = gps_string.split(',')
 
-			if len(parts) != 12:
+			if len(parts) != 13:
 				return
 
 			lat = float(parts[3]) # utm -> just assume south and east lol
 			lon = float(parts[5])
-			speed = round(float(parts[7])*1.852, 2) # convert knots to km/s and round cos why have so much precision lol
+			speed = round(float(parts[7])*1.852, 2) # convert knots to km/hr and round cos why have so much precision lol
 			bearing = float(parts[8]) # will be between 0 and 360
 
 			self.state['y'] = lat
