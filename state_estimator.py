@@ -6,8 +6,8 @@ class StateEstimator:
 
 	def __init__(self):
 		self.state['velocity'] = 0
-		self.state['x'] = ()
-		self.state['y'] = ()
+		self.state['x'] = 0
+		self.state['y'] = 0
 		self.state['bearing'] = 0
 		self.state['fixed'] = False
 
@@ -17,10 +17,10 @@ class StateEstimator:
 			if len(parts) != 15:
 				print("string too short...")
 				return # GPS message mangled, return old state --> TODO: predict new state from old state
-
+			print(gps_string)
 			fixed = parts[6]
 			num_satellites = parts[7]
-			if int(fixed) == 1 and int(num_satellites) > 6:
+			if int(fixed) > 0 and int(num_satellites) > 6:
 				self.state['fixed'] = True
 				print("updated state to fixed")
 				# TODO: predict new state from old state?
@@ -32,9 +32,10 @@ class StateEstimator:
 
 		elif gps_string.startswith("$GPRMC") and self.state['fixed']:
 		# TODO: fuzzy string matching in case the string is messy? gps_string.split(',')[0].lower()
+			print(gps_string)
 			parts = gps_string.split(',')
 
-			if len(parts) != 12:
+			if len(parts) != 13:
 				return
 
 			lat = float(parts[3]) # utm -> just assume south and east lol
@@ -46,7 +47,7 @@ class StateEstimator:
 			self.state['x'] = lon
 			self.state['velocity'] = speed
 			self.state['bearing'] = bearing
-
+			print(self.state)
 			return
 
 		else:

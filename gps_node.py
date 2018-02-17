@@ -15,7 +15,7 @@ sub = rospy.Subscriber('nmea_sentence', Sentence, callback_passthrough)
 
 def gps_node():
    rospy.init_node('gps_node', anonymous=True)
-   rospy.spin()
+
    rate = rospy.Rate(10)
    while not rospy.is_shutdown():
        msg = Odometry()
@@ -23,7 +23,13 @@ def gps_node():
        msg.pose.pose.position.y = state_estimator.state['y']
        msg.pose.pose.position.z = state_estimator.state['bearing']
        msg.twist.twist.linear.z = state_estimator.state['velocity']
-       msg.pose.covariance[0] = state_estimator.state['fix']
+       fixed = state_estimator.state['fixed']
+       if fixed:
+            msg.header.stamp = rospy.Time.now()
+       else:
+           msg.header.stamp = rospy.Time(0)
+
+
        pub.publish(msg)
        rate.sleep()
 
