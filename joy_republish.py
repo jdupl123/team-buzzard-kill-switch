@@ -24,14 +24,14 @@ class publisher(object):
         self.brake_msg = max(0,255*joy_data.axes[1]*-1)
         self.throttle_msg = max(0,255*joy_data.axes[1])
 
-        if (self.throttle_msg < 10) & (self.brake_msg > 200) & (joy_data.buttons[6] > 0) :
-            if joy_data.buttons[7] == -1:
+        if (joy_data.buttons[7] > 0) :
+            if joy_data.axes[7] == -1:
                 self.gear_msg = 80  # P
-            elif joy_data.buttons[7] == 1:
+            elif joy_data.axes[7] == 1:
                 self.gear_msg = 78  # N
-            elif joy_data.buttons[8] == 1:
+            elif joy_data.axes[8] == 1:
                 self.gear_msg = 68  # D
-            elif joy_data.buttons[8] == -1:
+            elif joy_data.axes[8] == -1:
                 self.gear_msg = 82  # R
 
         if joy_data.buttons[6] > 0:
