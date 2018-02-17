@@ -21,15 +21,62 @@
 #define MIN_THROTTLE 140
 #define MAX_THROTTLE 40
 
-#include <Servo.h> 
+#include "MotorController.h"
 #include <ros.h>
+
 #include <std_msgs/Int16.h>
 #include <std_msgs/Char.h>
 
 #include <SoftwareSerial.h>
-#include "RoboClaw.h"
 
 ros::NodeHandle  nh;
+
+
+
+// Setup Motor Controllers
+
+bool DEBUG = true;
+
+// Setup Brake
+int brakeEncoderPin = 0;
+int brakeServoPin = 9;
+float brakeAlpha = 5.;
+float brakeBasePos = 380;
+
+MotorController brakeController = MotorController(brakeEncoderPin, brakeServoPin, 
+                                                  brakeAlpha, brakeBasePos, 
+                                                  DEBUG); 
+
+// Setup Gear Controller
+int gearEncoderPin = 1;
+int gearServoPin = 10;
+float gearAlpha = 5;
+float gearBasePos = 0;
+                                       
+MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
+                                                 gearAlpha, gearBasePos, 
+                                                 DEBUG); // gear selector
+// Setup Steering Controller
+
+int steeringEncoderPin = 6; // NOT SURE ACTUALLY
+int steeringServoPin = 12;  // NOT SURE ACTUALLY
+float steeringAlpha = 5;
+float steeringBasePos = 5;
+
+//MotorController steeringController = MotorController(steeringEncoderPin, steeringServoPin,
+//                                                     steeringAlpha, steeringBasePos);
+
+
+
+
+
+
+
+
+
+// Setup ROS
+
+// DEFINE Callbacks
 
 // Throttle servo setup
 Servo servo;
@@ -51,9 +98,27 @@ void ignition_cb( const std_msgs::Int16& ignition_cmd){
   }
 }
 
+void gear_cb(const std_msgs::Int16& gear_cmd){
+  
+}
+
+void brake_cb(const std_msgs::Int16& brake_cmd){
+  
+}
+
+
+//
+
+
+
 ros::Subscriber<std_msgs::Int16> sub_throttle("throttle", &throttle_cb);
 ros::Subscriber<std_msgs::Int16> sub_steering("steering", &steering_cb);
 ros::Subscriber<std_msgs::Int16> sub_ignition("ignition", &ignition_cb);
+ros::Subscriber<std_msgs::Int16> sub_throttle("gear", &gear_cb);
+ros::Subscriber<std_msgs::Int16> sub_throttle("brake", &brake_cb);
+
+
+
 
 void setup(){
 

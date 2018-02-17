@@ -20,7 +20,7 @@ class MotorController
      
      void attach_servo()
      {
-      servo.attach(motorEncoderPin);
+      servo.attach(motorServoPin);
      };
 
      float maxPos; // max setting
@@ -35,28 +35,6 @@ class MotorController
      bool debug;
 
 };
-
-MotorController brakeController = MotorController(0, 9, 5., 0, DEBUG); // brake
-MotorController gearController = MotorController(1, 10, 5., 0, DEBUG); // gear selector
-// MotorController steeringController = MotorController(2 , 11, 5, 0, DEBUG); // to check
-
-void setup() {
-  Serial.begin(115200); 
-  brakeController.attach_servo();
-  gearController.attach_servo();
-  // steeringController.attach_servo();
-  gearController.basePos = 100;
-  
-
-};
-
-void loop() {
-  brakeController.update_motor(); 
-  gearController.update_motor();
-// steeringController.update_motor(600);
-  
-  delay(100);
-}
 
 
 void MotorController::update_motor()
@@ -100,3 +78,28 @@ void MotorController::update_motor()
   servo.write(int(output));
   
 };
+
+
+MotorController brakeController = MotorController(0, 9, 5., 0, DEBUG); // brake
+MotorController gearController = MotorController(1, 10, 5., 0, DEBUG); // gear selector
+// MotorController steeringController = MotorController(2 , 11, 5, 0, DEBUG); // to check
+
+void setup() {
+  Serial.begin(115200); 
+  brakeController.attach_servo();
+  gearController.attach_servo();
+  // steeringController.attach_servo();
+  gearController.basePos = 100;
+  
+
+};
+
+void loop() {
+  brakeController.update_motor(); 
+  gearController.update_motor();
+// steeringController.update_motor(600);
+  
+  delay(100);
+}
+
+
