@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import math
 SIM = True
 K_theta = 0.5
 L = 2.4
@@ -30,11 +31,11 @@ def run_drive_controller(desired_state, actual_state):
 
 	# theta_dot = v / L tan(steering_angle)
 	# steering_angle = arctan(L * theta_dot / v)
-	desired_steering_angle = arctan(L * theta_dot / actual_state['velocity'])
+	desired_steering_angle = math.atan(L * theta_dot / actual_state['velocity'])
 
 	# map accel to a throttle position
 	if accel < 0 and accel > -30:
-		# rotate servo position -> towards 140
+		# rotate servo position -> towards 0
 
 	elif accel < -30:
 		# rotate servo position -> towards 140
@@ -48,7 +49,14 @@ def run_drive_controller(desired_state, actual_state):
 
 	# map desired_steering_angle to a pot voltage or whatever it is lol
 	# need potentiometer value on straight, max left and max right steering
+	if theta_dot < -5:
+		# turn left
 
+	elif theta_dot > 5: 
+		# turn right
+
+	else:
+		# hold steering angle --> how to return this?
 
 
 
