@@ -89,15 +89,17 @@ void setup() {
   brakeController.attach_servo();
   gearController.attach_servo();
   // steeringController.attach_servo();
-  gearController.basePos = 100;
+  gearController.basePos = 380;
   
 
 };
 
-void loop() {
+
+void loop() { 
+  brakeController.desP = 400;
+  geatController.desp = 400;
   brakeController.update_motor(); 
   gearController.update_motor();
-// steeringController.update_motor(600);
   
   delay(100);
 }
