@@ -80,7 +80,8 @@ void MotorController::update_motor()
       
   }
 
-  saber->motor( motorNumber,int(output));
+  
+  saber->motor( motorNumber,map(int(output), 0, 180, -127, 127));
   
 };
 
