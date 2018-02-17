@@ -42,6 +42,9 @@ void MotorController::update_motor()
   float output;
   mPos = analogRead(motorEncoderPin);  
 
+  // Apply scaling
+  desP = map(desP, 0, 255, 0, 1023);
+
   // Add offset
   desP = desP + basePos;
 
@@ -49,13 +52,12 @@ void MotorController::update_motor()
   if ( desP > maxPos) {  desP = maxPos; };
 
 
-  //map(mPos, 0, 1023, 0, 255);
   if (debug) {  Serial.println(mPos); }
   
   int err =desP - mPos;
   //Serial.println
   if (err <= 5 and err >= -5){
-    if (debug) {Serial.println("no err");}
+    if (debug) {Serial.println("no err");}    
     output = 90;    
   } else if (err < -5) {
       output = 80.0 + ((alpha * err) * (85./1024.));

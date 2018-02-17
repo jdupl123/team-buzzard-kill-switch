@@ -52,6 +52,12 @@ int gearEncoderPin = 1;
 int gearServoPin = 10;
 float gearAlpha = 5;
 float gearBasePos = 0;
+
+// Gear postions
+int parkGearPos = 0;
+int neutralGearPos = 0;
+int  reverseGearPos = 0;
+int driveGearPos = 0;
                                        
 MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
                                                  gearAlpha, gearBasePos, 
@@ -105,8 +111,30 @@ void ignition_cb( const std_msgs::Int16& ignition_cmd){
   }
 }
 
-void gear_cb(const std_msgs::Int16& gear_cmd){
-  gearController.desP = gear_cmd.data;
+void gear_cb(const std_msgs::Char& gear_cmd){
+
+  char newGear = gear_cmd.data;
+
+  float setPoint = -1;
+  
+  switch (newGear) {
+    case 'P':
+      setPoint = parkGearPos;
+      break;
+    case 'N':
+      setPoint = neutralGearPos;
+      break;
+    case 'R': 
+      setPoint = reverseGearPos;
+      break;
+    case 'D':
+      setPoint = driveGearPos;
+      break;
+  }
+
+  if (setPoint > 0) { 
+    gearController.desP = setPoint;
+  }
 }
 
 void brake_cb(const std_msgs::Int16& brake_cmd){
@@ -128,7 +156,7 @@ void starter_cb(const std_msgs::Int16& starter_cmd) {
 ros::Subscriber<std_msgs::Int16> sub_throttle("throttle", &throttle_cb);
 ros::Subscriber<std_msgs::Int16> sub_steering("steering", &steering_cb);
 ros::Subscriber<std_msgs::Int16> sub_ignition("ignition", &ignition_cb);
-ros::Subscriber<std_msgs::Int16> sub_gear("gear", &gear_cb);
+ros::Subscriber<std_msgs::Char> sub_gear("gear", &gear_cb);
 ros::Subscriber<std_msgs::Int16> sub_brake("brake", &brake_cb);
 ros::Subscriber<std_msgs::Int16> sub_starter("starter", &starter_cb);
 
@@ -139,11 +167,13 @@ void setup(){
 
 
   brakeController.attach_servo();
-  brakeController.basePos = 380;
+  brakeController.basePos = brakeBasePos;
   
   gearController.attach_servo();
+  gearController.basePos = gearBasePos;
   
   steeringController.attach_servo();
+  steeringController.basePos = steeringBasePos;
 
   // Setup Throttle.
   throttleServo.attach(throttleServoPin); // throttle on pin 22
