@@ -4,8 +4,11 @@
 class MotorController
 {
   public: 
-     MotorController(int MEP, int MSP, float A, float bP, bool d)
+     MotorController(int MEP, int MSP, float A, float bP, bool inv, bool d)
      {
+      /*
+       *  
+       */
       motorEncoderPin = MEP;
       motorServoPin = MSP;
       alpha = A;
@@ -13,6 +16,7 @@ class MotorController
       maxPos = 1024;
       basePos = bP;
       desP = basePos;
+      invert = inv;
      };
      void update_motor();
      
@@ -23,7 +27,8 @@ class MotorController
 
      float maxPos; // max setting
      float basePos; // ADC measurement when fully retracted.
-     float desP; // Set desired position. 
+     float desP; // Set desired position.
+     bool invert; 
      
   private:
      Servo servo;
@@ -44,6 +49,9 @@ void MotorController::update_motor()
 
   // Apply scaling
   desP = map(desP, 0, 255, 0, 1023);
+
+  // Apply invert if neccesary.
+  if (invert) { desP = map(desP, 0, 255, 255, 0);}
 
   // Add offset
   desP = desP + basePos;

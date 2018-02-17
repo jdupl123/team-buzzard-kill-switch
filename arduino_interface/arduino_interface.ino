@@ -42,16 +42,18 @@ int brakeEncoderPin = 0;
 int brakeServoPin = 9;
 float brakeAlpha = 5.;
 float brakeBasePos = 380;
+bool brakeInvert = false;
 
 MotorController brakeController = MotorController(brakeEncoderPin, brakeServoPin, 
                                                   brakeAlpha, brakeBasePos, 
-                                                  DEBUG); 
+                                                  brakeInvert, DEBUG); 
 
 // Setup Gear Controller
 int gearEncoderPin = 1;
 int gearServoPin = 10;
 float gearAlpha = 5;
 float gearBasePos = 0;
+bool gearInvert = false;
 
 // Gear postions
 int parkGearPos = 0;
@@ -61,17 +63,18 @@ int driveGearPos = 0;
                                        
 MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
                                                  gearAlpha, gearBasePos, 
-                                                 DEBUG); // gear selector
+                                                 gearInvert, DEBUG); // gear selector
 // Setup Steering Controller
 
 int steeringEncoderPin = 2; 
 int steeringServoPin = 11;  
 float steeringAlpha = 5;
 float steeringBasePos = 5;
+bool steeringInvert = false;
 
 MotorController steeringController = MotorController(steeringEncoderPin, steeringServoPin,
                                                      steeringAlpha, steeringBasePos, 
-                                                     DEBUG);
+                                                     steeringInvert, DEBUG);
 
 
 
@@ -111,23 +114,23 @@ void ignition_cb( const std_msgs::Int16& ignition_cmd){
   }
 }
 
-void gear_cb(const std_msgs::Char& gear_cmd){
+void gear_cb(const std_msgs::Int16& gear_cmd){
 
-  char newGear = gear_cmd.data;
+  int newGear = gear_cmd.data;
 
   float setPoint = -1;
   
   switch (newGear) {
-    case 'P':
+    case 80: // P
       setPoint = parkGearPos;
       break;
-    case 'N':
+    case 78: // N
       setPoint = neutralGearPos;
       break;
-    case 'R': 
+    case 82: // R 
       setPoint = reverseGearPos;
       break;
-    case 'D':
+    case 86: // D
       setPoint = driveGearPos;
       break;
   }
@@ -156,7 +159,7 @@ void starter_cb(const std_msgs::Int16& starter_cmd) {
 ros::Subscriber<std_msgs::Int16> sub_throttle("throttle", &throttle_cb);
 ros::Subscriber<std_msgs::Int16> sub_steering("steering", &steering_cb);
 ros::Subscriber<std_msgs::Int16> sub_ignition("ignition", &ignition_cb);
-ros::Subscriber<std_msgs::Char> sub_gear("gear", &gear_cb);
+ros::Subscriber<std_msgs::Int16> sub_gear("gear", &gear_cb);
 ros::Subscriber<std_msgs::Int16> sub_brake("brake", &brake_cb);
 ros::Subscriber<std_msgs::Int16> sub_starter("starter", &starter_cb);
 
