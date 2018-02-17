@@ -49,10 +49,10 @@ def run_drive_controller(desired_state, actual_state):
 
 	# map desired_steering_angle to a pot voltage or whatever it is lol
 	# need potentiometer value on straight, max left and max right steering
-	if theta_dot < -5:
+	if desired_steering_angle < -5:
 		# turn left
 
-	elif theta_dot > 5: 
+	elif desired_steering_angle > 5: 
 		# turn right
 
 	else:
