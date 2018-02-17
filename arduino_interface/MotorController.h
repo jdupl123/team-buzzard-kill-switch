@@ -4,7 +4,7 @@
 class MotorController
 {
   public: 
-     MotorController(int MEP, int MSP, float A, float bP, bool inv, bool d)
+     MotorController(int MEP, int MSP, float A, float bP, float iP, bool inv, bool d)
      {
       /*
        *  
@@ -15,20 +15,25 @@ class MotorController
       debug = d;
       maxPos = 1024;
       basePos = bP;
-      desP = basePos;
       invert = inv;
-     };
+      initialPosition = iP; 
+      desP = initialPosition;
+      hyst = 10;
+     }
      void update_motor();
      
      void attach_servo()
      {
       servo.attach(motorEncoderPin);
+      
      };
 
      float maxPos; // max setting
      float basePos; // ADC measurement when fully retracted.
      float desP; // Set desired position.
+     float initialPosition;
      bool invert; 
+     int hyst;
      
   private:
      Servo servo;
@@ -65,16 +70,16 @@ void MotorController::update_motor()
   
   int err =desP - mPos;
   //Serial.println
-  if (err <= 5 and err >= -5){
+  if (err <= hyst and err >= -hyst){
     if (debug) {Serial.println("no err");}    
     output = 90;    
-  } else if (err < -5) {
+  } else if (err < -hyst) {
       output = 80.0 + ((alpha * err) * (85./1024.));
       if (debug) {Serial.println(output);}
       
       if (output <=5) { output = 5; }
      
-  } else if (err > 5) {
+  } else if (err > hyst) {
       
       output = 100.0 + (alpha * err) * (85./1024.);
       

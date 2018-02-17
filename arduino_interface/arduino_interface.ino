@@ -43,9 +43,11 @@ int brakeServoPin = 9;
 float brakeAlpha = 5.;
 float brakeBasePos = 380;
 bool brakeInvert = false;
+float brakeInitialPos = 0;
 
 MotorController brakeController = MotorController(brakeEncoderPin, brakeServoPin, 
-                                                  brakeAlpha, brakeBasePos, 
+                                                  brakeAlpha, 
+                                                  brakeBasePos, brakeInitialPos,
                                                   brakeInvert, DEBUG); 
 
 // Setup Gear Controller
@@ -54,6 +56,7 @@ int gearServoPin = 10;
 float gearAlpha = 5;
 float gearBasePos = 0;
 bool gearInvert = false;
+float gearInitialPos = 400;
 
 // Gear postions
 int parkGearPos = 0;
@@ -62,7 +65,8 @@ int  reverseGearPos = 0;
 int driveGearPos = 0;
                                        
 MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
-                                                 gearAlpha, gearBasePos, 
+                                                 gearAlpha, 
+                                                 gearBasePos, gearInitialPos, 
                                                  gearInvert, DEBUG); // gear selector
 // Setup Steering Controller
 
@@ -71,9 +75,11 @@ int steeringServoPin = 11;
 float steeringAlpha = 5;
 float steeringBasePos = 5;
 bool steeringInvert = false;
+float steeringInitialPos = 127;
 
 MotorController steeringController = MotorController(steeringEncoderPin, steeringServoPin,
                                                      steeringAlpha, steeringBasePos, 
+                                                     steeringInitialPos,
                                                      steeringInvert, DEBUG);
 
 
@@ -83,6 +89,7 @@ MotorController steeringController = MotorController(steeringEncoderPin, steerin
 
 int throttleServoPin = 22;
 
+float throttleInitialPos = 127;
 // Setup Ignition
 int ignitionPin = 4;
 
@@ -180,6 +187,7 @@ void setup(){
 
   // Setup Throttle.
   throttleServo.attach(throttleServoPin); // throttle on pin 22
+  throttleServo.write(map(throttleInitialPos, 0, 255, MIN_THROTTLE, MAX_THROTTLE));
   pinMode(ignitionPin, OUTPUT);
   pinMode(starterPin, OUTPUT);
   
@@ -191,12 +199,45 @@ void setup(){
   nh.subscribe(sub_brake);  
   nh.subscribe(sub_starter);  
 
+
+  Serial.begin(9600);
+
 }
+
+
+void listenToSerial()
+{
+ while (Serial.available() > 0) {
+    char select = Serial.read();
+    int pos = Serial.parseInt();
+    String tmp = Serial.readString(); // Try to read any junk after..... 
+    
+    switch (select)
+    {
+      case 'g':
+        gearController.desP = pos;
+        break;
+      case 'b':
+        brakeController.desP = pos;
+        break;
+      case 's':
+        steeringController.desP = pos;
+        break;
+      default:
+        Serial.println("Invalid motor, g - gear, b - brake, s - steering");
+        break;
+    }
+  }
+}
+
 
 void loop(){
   nh.spinOnce();
   brakeController.update_motor(); 
   gearController.update_motor();
   steeringController.update_motor();
+
+  listenToSerial();
+ 
   delay(50);
 }
