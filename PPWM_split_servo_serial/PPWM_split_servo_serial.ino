@@ -1,16 +1,16 @@
 
 #include <Sabertooth.h>
 
-Sabertooth Steering = Sabertooth(128);
-Sabertooth Actuators = Sabertooth(129);
+Sabertooth Steering= Sabertooth(128, Serial1);
+Sabertooth Actuators = Sabertooth(129, Serial1);
 
-bool DEBUG = false;
-int hyst = 10;
+bool DEBUG = true;
+int hyst = 20;
 
 class MotorController
 {
   public: 
-     MotorController(int MEP, int MSP, float A, float bP, int motorn, bool d, Sabertooth &sab)
+     MotorController(int MEP, int MSP, float A, float bP, int motorn, bool d, Sabertooth &sab, String nams)
      {
       motorEncoderPin = MEP;
       motorServoPin = MSP;
@@ -21,9 +21,11 @@ class MotorController
       desP = basePos;
       motorNumber = motorn;
       saber = &sab;
+      nams = nam;
      };
      void update_motor();
 
+     String nam;
      float maxPos; // max setting
      float basePos; // ADC measurement when fully retracted.
      float desP; // Set desired position. 
@@ -76,43 +78,44 @@ void MotorController::update_motor()
       
       if (output >=175) { output = 175; }
 
-      if (debug) {Serial.println(output);}
       
   }
-
+  output = map(int(output), 0, 180, -127, 127);
   
-  saber->motor( motorNumber,map(int(output), 0, 180, -127, 127));
+  if (debug) {Serial.println(output);}
+
+  saber->motor( motorNumber, output);
   
 };
 
 
-MotorController brakeController = MotorController(0, 9, 5., 0,  2,DEBUG, Actuators); // brake
-MotorController gearController = MotorController(1, 10, 5., 0,  1, DEBUG, Actuators); // gear selector
-MotorController steeringController = MotorController(2 , 11, 5, 0, 1, DEBUG, Steering); // to check
+MotorController brakeController = MotorController(0, 9, 5., 0,  1, DEBUG, Actuators, "brake"); // brake
+MotorController gearController = MotorController(1, 10, 5., 0,  2, DEBUG, Actuators, "gear"); // gear selector
+MotorController steeringController = MotorController(2 , 11, 5, 0, 2, DEBUG, Steering, "steering"); // to check
 
 void setup() {
-  SabertoothTXPinSerial.begin(9600);
+  Serial1.begin(9600);
+  //Actuators.autobaud();
   
-  Actuators.autobaud();
-  
-  Steering.autobaud();
+  //Steering.autobaud();
+  Serial.begin(9600);
   
   //Serial.begin(115200); 
 
   // steeringController.attach_servo();
-  gearController.basePos = 380;
+  //gearController.basePos = 0;
   
 
 };
 
 
 void loop() { 
-  //brakeController.desP = 800;
-  gearController.desP = 200;
+  //brakeController.desP = 200;
+  gearController.desP = 250;
   //brakeController.update_motor(); 
   gearController.update_motor();
-  
-  delay(100);
+  //Serial.println("Hello");
+  delay(15);
 }
 
 
