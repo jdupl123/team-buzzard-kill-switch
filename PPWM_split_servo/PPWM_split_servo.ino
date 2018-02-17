@@ -2,6 +2,7 @@
 #include <Servo.h>
 
 bool DEBUG = true;
+int hyst = 10;
 
 class MotorController
 {
@@ -56,22 +57,23 @@ void MotorController::update_motor()
   
   int err =desP - mPos;
   //Serial.println
-  if (err <= 5 and err >= -5){
+  if (err <= hyst and err >= -hyst){
     if (debug) {Serial.println("no err");}
     output = 90;    
-  } else if (err < -5) {
+  } else if (err < -hyst) {
       output = 80.0 + ((alpha * err) * (85./1024.));
-      if (debug) {Serial.println(output);}
+       
+      if (output <= 5) { output = 5; }
       
-      if (output <=5) { output = 5; }
+      if (debug) {Serial.println(output);}
      
-  } else if (err > 5) {
+  } else if (err > hyst) {
       
       output = 100.0 + (alpha * err) * (85./1024.);
       
-      if (debug) {Serial.println(output);}
-      
       if (output >=175) { output = 175; }
+
+      if (debug) {Serial.println(output);}
       
   }
 
@@ -96,9 +98,9 @@ void setup() {
 
 
 void loop() { 
-  brakeController.desP = 400;
-  geatController.desp = 400;
-  brakeController.update_motor(); 
+  //brakeController.desP = 400;
+  gearController.desP = 400;
+  //brakeController.update_motor(); 
   gearController.update_motor();
   
   delay(100);
