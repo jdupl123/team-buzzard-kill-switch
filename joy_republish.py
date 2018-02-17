@@ -9,14 +9,22 @@ class publisher(object):
     brake_msg = Int16()
     throttle_msg = Int16()
     gear_msg = Char()
+    ignition_msg = Int16();
 
     brake_pub = rospy.Publisher('brake', Int16, queue_size=10)
     throttle_pub = rospy.Publisher('throttle', Int16, queue_size=10)
     gear_pub = rospy.Publisher('gear', Char, queue_size=10)
+    ignition_pub = rospy.Publisher('ignition', Int16, queue_size=10)
 
     def joy_callback(self, joy_data):
         self.brake_msg = max(0,255*joy_data.axes[1]*-1)
         self.throttle_msg = max(0,255*joy_data.axes[1])
+
+        if (joy_data.axes[2] < 0) & (joy_data.axes[5] < 0):
+            self.ignition_msg = 1
+        else:
+            self.ignition_msg = 0
+
         if joy_data.buttons[4] > 0:
             self.gear_msg = 'P'
         elif joy_data.buttons[5] > 0:
@@ -31,6 +39,7 @@ class publisher(object):
             self.brake_pub.publish(self.brake_msg)
             self.throttle_pub.publish(self.throttle_msg)
             self.gear_pub.publish(self.gear_msg)
+            self.ignition_pub.publish(self.ignition_msg)
             rate.sleep()
 
 if __name__ == '__main__':
