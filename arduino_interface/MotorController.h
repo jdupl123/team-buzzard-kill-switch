@@ -47,12 +47,13 @@ void MotorController::update_motor()
   float output;
   mPos = analogRead(motorEncoderPin);  
 
+ // Apply invert if neccesary.
+  if (invert) { desP = map(desP, 0, 255, 255, 0);}
+
   // Apply scaling
   desP = map(desP, 0, 255, 0, 1023);
 
-  // Apply invert if neccesary.
-  if (invert) { desP = map(desP, 0, 255, 255, 0);}
-
+ 
   // Add offset
   desP = desP + basePos;
 
