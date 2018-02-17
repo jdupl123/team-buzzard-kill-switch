@@ -83,6 +83,9 @@ class DriveController:
 		steer_output = ((desired_steering_angle + self.max_turn)/(2*self.max_turn)) * 1024.0
 		print(steer_output)
 		# map vel_err to a throttle position
+		#################################################################
+		# WARNING: This code needs fixing -> mapping may not be correct #
+		#################################################################
 		if vel_err < -20:
 			# rotate servo position -> towards 0 and extend actuator to apply brake
 			# change in force applyed to the car (either through accel or braking)
@@ -90,7 +93,7 @@ class DriveController:
 			if desired_vel_out < -40:
 				desired_vel_out = -40
 
-			#accel_mapping = (1 - (desired_vel_out/40)) * 100 + 40 # so 0 -> 140 and 40 -> 40
+			accel_mapping = ((-1*desired_vel_out/40)) * 100 + 40 # so 0 -> 140 and 40 -> 40
 
 			brake_control = 0.5 * accel_mapping # half the power of deccel with the throttle
 
