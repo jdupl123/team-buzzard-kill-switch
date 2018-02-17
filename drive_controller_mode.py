@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import math
 import numpy as np
+import rospy
+from nav_msgs.msg import Odometry
+from std_msgs.msg import Int16
 
 class DriveController:
 
@@ -22,8 +25,33 @@ class DriveController:
 		self.vel_i_err = 0
 		self.vel_d_err = 0
 		self.vel_d_last = 0
+
+		self.desired_state = {}
+		self.actual_state = {}
+
+		self.state_sub = rospy.Subscriber('state', Odometry, self.state_callback)
+		self.target_sub = rospy.Subscriber('target', Odometry, self.target_callback)
+		self.throttle_pub = rospy.Publisher('throttle', Int16, queue_size=5)
+		self.brake_pub = rospy.Publisher('brake', Int16, queue_size=5)
+		self.steering_pub = rospy.Publisher('steering', Int16, queue_size=5)
+
+
+	def target_callback(self, message):
+		self.desired_state['position_x'] = message.pose.pose.position.x
+		self.desired_state['position_y'] = message.pose.pose.position.y
+		self.desired_state['bearing'] = message.pose.pose.position.z
+		self.desired_state['velocity'] = message.twist.twist.linear.z
+
+	def state_callback(self, message):
+		self.actual_state['position_x'] = message.pose.pose.position.x
+		self.actual_state['position_y'] = message.pose.pose.position.y
+		self.actual_state['bearing'] = message.pose.pose.position.z
+		self.actual_state['velocity'] = message.twist.twist.linear.z
 	
-	def run_drive_controller(self, desired_state, actual_state):
+	def run_drive_controller(self):
+
+		desired_state = self.desired_state
+		actual_state = self.actual_state
 		"""
 			desired_state and actual_state both contain:
 				velocity,
@@ -108,7 +136,15 @@ class DriveController:
 				desired_vel_out = 40
 
 			accel_mapping = round((1 - (desired_vel_out/40)) * 100 + 40) # so 0 -> 140 and 40 -> 40
-		
-		return (accel_mapping, brake_control, steer_output)
 
+		self.steering_pub.publish(steer_output)
+		self.brake_pub.publish(brake_control)
+		self.throttle_pub.publish(accel_mapping)
+
+rospy.init_node('drive_controller', anonymous=False)
+publisher_ = DriveController()
+rate = rospy.Rate(20)
+while not rospy.is_shutdown():
+	publisher_.run_drive_controller()
+	rate.sleep()
 

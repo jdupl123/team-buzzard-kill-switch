@@ -33,7 +33,7 @@ def waypointSelect(gpsCoords, currentPos, heading):
     msg = Odometry()
     msg.pose.pose.position.x = 0
     msg.pose.pose.position.y = 0
-    msg.pose.pose.position.y = gpsMinAngle
+    msg.pose.pose.position.z = gpsMinAngle
     msg.twist.twist.linear.z = 10
 
     target_pub.publish(msg)
