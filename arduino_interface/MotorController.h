@@ -1,41 +1,36 @@
-#include <Servo.h>
+#include <Sabertooth.h>
+
+int hyst = 20;
 
 class MotorController
 {
-  public:
-     MotorController(int MEP, int MSP, float A, float bP, float iP, bool inv, bool d)
+  public: 
+     MotorController(int MEP, int MSP, float A, float bP, int motorn, bool d, 
+     Sabertooth &sab, String nams)
      {
-      /*
-       *
-       */
       motorEncoderPin = MEP;
       motorServoPin = MSP;
       alpha = A;
       debug = d;
       maxPos = 1024;
       basePos = bP;
-      invert = inv;
-      initialPosition = iP;
-      desP = initialPosition;
-      hyst = 10;
-     }
+      desP = basePos;
+      motorNumber = motorn;
+      saber = &sab;
+      nams = nam;
+     };
      void update_motor();
 
-     void attach_servo()
-     {
-
-      servo.attach(motorServoPin);
-     };
-
+     String nam;
      float maxPos; // max setting
      float basePos; // ADC measurement when fully retracted.
-     float desP; // Set desired position.
-     float initialPosition;
-     bool invert;
-     int hyst;
-
+     float desP; // Set desired position. 
+     int motorNumber;
+     Sabertooth* saber;
+     
   private:
-     Servo servo;
+     int ST;
+
      int motorEncoderPin;
      float alpha;
      int motorServoPin;
@@ -49,14 +44,7 @@ void MotorController::update_motor()
  //desP is a number between 0 and 255
   int mPos;
   float output;
-  mPos = analogRead(motorEncoderPin);
-
- // Apply invert if neccesary.
-  if (invert) { desP = map(desP, 0, 255, 255, 0);}
-
-  // Apply scaling
-  desP = map(desP, 0, 255, 0, 1023);
-
+  mPos = analogRead(motorEncoderPin);  
 
   // Add offset
   desP = desP + basePos;
@@ -65,29 +53,34 @@ void MotorController::update_motor()
   if ( desP > maxPos) {  desP = maxPos; };
 
 
+  //map(mPos, 0, 1023, 0, 255);
   if (debug) {  Serial.println(mPos); }
-
+  
   int err =desP - mPos;
   //Serial.println
   if (err <= hyst and err >= -hyst){
     if (debug) {Serial.println("no err");}
-    output = 90;
+    output = 90;    
   } else if (err < -hyst) {
       output = 80.0 + ((alpha * err) * (85./1024.));
+       
+      if (output <= 5) { output = 5; }
+      
       if (debug) {Serial.println(output);}
-
-      if (output <=5) { output = 5; }
-
+     
   } else if (err > hyst) {
-
+      
       output = 100.0 + (alpha * err) * (85./1024.);
-
-      if (debug) {Serial.println(output);}
-
+      
       if (output >=175) { output = 175; }
 
+      
   }
+  output = map(int(output), 0, 180, -127, 127);
+  
+  if (debug) {Serial.println(output);}
 
-  servo.write(int(output));
-
+  saber->motor( motorNumber, output);
+  
 };
+

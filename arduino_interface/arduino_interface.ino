@@ -28,6 +28,11 @@
 #include <std_msgs/Char.h>
 
 #include <SoftwareSerial.h>
+#include <Servo.h>
+
+Sabertooth Steering= Sabertooth(128, Serial1);
+Sabertooth Actuators = Sabertooth(129, Serial1);
+
 
 ros::NodeHandle  nh;
 
@@ -44,11 +49,12 @@ float brakeAlpha = 5.;
 float brakeBasePos = 0;
 bool brakeInvert = false;
 float brakeInitialPos = 0;
+float brakeMotorNum = 1;
 
 MotorController brakeController = MotorController(brakeEncoderPin, brakeServoPin, 
-                                                  brakeAlpha, 
-                                                  brakeBasePos, brakeInitialPos,
-                                                  brakeInvert, DEBUG); 
+                                                  brakeAlpha, brakeBasePos,  brakeMotorNum, 
+                                                  DEBUG, Actuators, "brake"); // brake
+
 
 // Setup Gear Controller
 int gearEncoderPin = 1;
@@ -57,30 +63,33 @@ float gearAlpha = 5;
 float gearBasePos = 0;
 bool gearInvert = false;
 float gearInitialPos = 470;
+int gearMotorNum = 2;
 
 // Gear postions
 int parkGearPos = 470 - gearInitialPos;
 int neutralGearPos = 310 - gearInitialPos;
 int  reverseGearPos = 380 - gearInitialPos;
 int driveGearPos = 260 - gearInitialPos;
-                                       
-MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
-                                                 gearAlpha, 
-                                                 gearBasePos, gearInitialPos, 
-                                                 gearInvert, DEBUG); // gear selector
+
+MotorController gearController = MotorController(gearEncoderPin, gearServoPin, 
+                                                 gearAlpha, gearBasePos,  gearMotorNum, 
+                                                  DEBUG, Actuators, 
+                                                  "gear"); // gear selector
+
 // Setup Steering Controller
 
 int steeringEncoderPin = 2; 
 int steeringServoPin = 11;  
 float steeringAlpha = 5;
-float steeringBasePos = 5;
+float steeringBasePos = 127;
 bool steeringInvert = false;
 float steeringInitialPos = 127;
+int steeringMotorNum = 2;
 
-MotorController steeringController = MotorController(steeringEncoderPin, steeringServoPin,
-                                                     steeringAlpha, steeringBasePos, 
-                                                     steeringInitialPos,
-                                                     steeringInvert, DEBUG);
+MotorController steeringController = MotorController(steeringEncoderPin , steeringServoPin, 
+                                                      steeringAlpha, steeringBasePos, 
+                                                      steeringMotorNum, DEBUG, 
+                                                      Steering, "steering");
 
 
 
@@ -175,14 +184,11 @@ ros::Subscriber<std_msgs::Int16> sub_starter("starter", &starter_cb);
 
 void setup(){
 
+  // Setup Serial1
+  Serial1.begin(9600);
 
-  brakeController.attach_servo();
-  brakeController.basePos = brakeBasePos;
-  
-  gearController.attach_servo();
+  brakeController.basePos = brakeBasePos;  
   gearController.basePos = gearBasePos;
-  
-  steeringController.attach_servo();
   steeringController.basePos = steeringBasePos;
 
   // Setup Throttle.
