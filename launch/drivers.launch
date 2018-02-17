@@ -1,6 +1,6 @@
 <launch>
 	<node pkg="rosserial_python" name="arduino_driver" type="serial_node.py" args="/dev/ttyACM0" output="screen"/>
 	
-	<node pkg="nmea_navsat_driver" name="gps_driver" type="nmea_topic_serial_reader" args="_port:=/dev/ttyUSB1 _baud:=9600"/>
+	<node pkg="nmea_navsat_driver" name="gps_driver" type="nmea_topic_serial_reader" args="_port:=/dev/ttyUSB0 _baud:=9600"/>
 
 </launch>

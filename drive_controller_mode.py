@@ -26,8 +26,8 @@ class DriveController:
 		self.vel_d_err = 0
 		self.vel_d_last = 0
 
-		self.desired_state = {}
-		self.actual_state = {}
+		self.desired_state = {'velocity': 0.1, 'position_x': 0, 'position_y': 0, 'bearing': 0}
+		self.actual_state = {'velocity': 0.1, 'position_x': 0, 'position_y': 0, 'bearing': 0}
 
 		self.state_sub = rospy.Subscriber('state', Odometry, self.state_callback)
 		self.target_sub = rospy.Subscriber('target', Odometry, self.target_callback)

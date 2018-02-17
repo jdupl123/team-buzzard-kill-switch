@@ -7,17 +7,26 @@ from scipy import spatial
 def state_callback( state ):
     position = np.array([[state.pose.pose.position.x, state.pose.pose.position.y]])
     heading = state.pose.pose.position.z
-    waypointSelect(np.array(), np.array(), position, heading)
+    waypointSelect(position, heading)
 
 state_sub = rospy.Subscriber('state', Odometry, state_callback)
 target_pub = rospy.Publisher('target', Odometry, queue_size=10)
 
-def waypointSelect(gpsCoords, currentPos, heading):
+def waypointSelect(currentPos, heading):
     """
     This function returns the target GPS coordinates, either a list of waypoints or an estimate from the vision system.
     The heading is also used to ensure that the waypoints behind the car are excluded
     """
-
+    gpsCoords = np.array([
+        [-27.8552175, 153.1511374],
+        [-27.8554650, 153.1516188],
+        [-27.8557407, 153.1520735],
+        [-27.8560205, 153.1521694],
+        [-27.8560920, 153.1519464],
+        [-27.8559772, 153.1513396],
+        [-27.8555771, 153.1508628],
+        [-27.8553002, 153.1509104]
+    ])
     DIST_THRESHOLD = 10
 
     gpsDist = spatial.distance.cdist(gpsCoords, currentPos)
@@ -28,7 +37,7 @@ def waypointSelect(gpsCoords, currentPos, heading):
     gpsMinY = gpsCoords[minind][1]
     gpsMinAngle = gpsAngle[minind]
 
-    print gpsMinX, gpsMinY, gpsMinAngle
+    print (gpsMinX, gpsMinY, gpsMinAngle)
 
     msg = Odometry()
     msg.pose.pose.position.x = 0
@@ -37,20 +46,20 @@ def waypointSelect(gpsCoords, currentPos, heading):
     msg.twist.twist.linear.z = 10
 
     target_pub.publish(msg)
-
+rospy.init_node('waypoint_selector', anonymous=False)
 rospy.spin()
 
 # Dummy data for testing
-# gpsCoords = np.array([
-#     [-27.8552175, 153.1511374],
-#     [-27.8554650, 153.1516188],
-#     [-27.8557407, 153.1520735],
-#     [-27.8560205, 153.1521694],
-#     [-27.8560920, 153.1519464],
-#     [-27.8559772, 153.1513396],
-#     [-27.8555771, 153.1508628],
-#     [-27.8553002, 153.1509104]
-# ])
+
+
+
+
+
+
+
+
+
+
 
 # visionCoords = np.array(
 #     [[682, 2644],
