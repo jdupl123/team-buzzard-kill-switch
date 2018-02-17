@@ -98,8 +98,8 @@ void setup() {
 
 
 void loop() { 
-  //brakeController.desP = 400;
-  gearController.desP = 400;
+  //brakeController.desP = 800;
+  gearController.desP = 200;
   //brakeController.update_motor(); 
   gearController.update_motor();
   
