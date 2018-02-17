@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 # waypoints in lat long
 waypoints = [
 	(-27.8552175, 153.1511374),
@@ -21,3 +24,10 @@ waypoints_utm = [
 	((514852.95, 'E'), (6918786.79, 'S')),
 	((514857.67, 'E'), (6918817.46, 'S'))
 	]
+
+if __name__ == "__main__":
+	f = plt.figure()
+	for x, y in waypoints_utm:
+		f.plot(x[0], y[0])
+
+	plt.show()
