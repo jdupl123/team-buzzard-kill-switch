@@ -42,30 +42,39 @@ int brakeEncoderPin = 0;
 int brakeServoPin = 9;
 float brakeAlpha = 5.;
 float brakeBasePos = 380;
+bool brakeInvert = false;
 
 MotorController brakeController = MotorController(brakeEncoderPin, brakeServoPin, 
                                                   brakeAlpha, brakeBasePos, 
-                                                  DEBUG); 
+                                                  brakeInvert, DEBUG); 
 
 // Setup Gear Controller
 int gearEncoderPin = 1;
 int gearServoPin = 10;
 float gearAlpha = 5;
 float gearBasePos = 0;
+bool gearInvert = false;
+
+// Gear postions
+int parkGearPos = 0;
+int neutralGearPos = 0;
+int  reverseGearPos = 0;
+int driveGearPos = 0;
                                        
 MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
                                                  gearAlpha, gearBasePos, 
-                                                 DEBUG); // gear selector
+                                                 gearInvert, DEBUG); // gear selector
 // Setup Steering Controller
 
 int steeringEncoderPin = 2; 
 int steeringServoPin = 11;  
 float steeringAlpha = 5;
 float steeringBasePos = 5;
+bool steeringInvert = false;
 
 MotorController steeringController = MotorController(steeringEncoderPin, steeringServoPin,
                                                      steeringAlpha, steeringBasePos, 
-                                                     DEBUG);
+                                                     steeringInvert, DEBUG);
 
 
 
@@ -106,7 +115,29 @@ void ignition_cb( const std_msgs::Int16& ignition_cmd){
 }
 
 void gear_cb(const std_msgs::Int16& gear_cmd){
-  gearController.desP = gear_cmd.data;
+
+  int newGear = gear_cmd.data;
+
+  float setPoint = -1;
+  
+  switch (newGear) {
+    case 80: // P
+      setPoint = parkGearPos;
+      break;
+    case 78: // N
+      setPoint = neutralGearPos;
+      break;
+    case 82: // R 
+      setPoint = reverseGearPos;
+      break;
+    case 86: // D
+      setPoint = driveGearPos;
+      break;
+  }
+
+  if (setPoint > 0) { 
+    gearController.desP = setPoint;
+  }
 }
 
 void brake_cb(const std_msgs::Int16& brake_cmd){
@@ -139,11 +170,13 @@ void setup(){
 
 
   brakeController.attach_servo();
-  brakeController.basePos = 380;
+  brakeController.basePos = brakeBasePos;
   
   gearController.attach_servo();
+  gearController.basePos = gearBasePos;
   
   steeringController.attach_servo();
+  steeringController.basePos = steeringBasePos;
 
   // Setup Throttle.
   throttleServo.attach(throttleServoPin); // throttle on pin 22
