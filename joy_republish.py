@@ -21,18 +21,18 @@ class publisher(object):
     steering_pub = rospy.Publisher('steering', Int16, queue_size=10)
 
     def joy_callback(self, joy_data):
-        self.brake_msg = max(0,255*joy_data.axes[1]*-1)
+        self.brake_msg = 45 + max(0,100*joy_data.axes[1]*-1)
         self.throttle_msg = max(0,255*joy_data.axes[1])
 
         if (joy_data.buttons[7] > 0 and joy_data.axes[1] < 0.9) :
             if joy_data.axes[6] == -1:
-                self.gear_msg = 80  # P
+                self.gear_msg = 110  # N
             elif joy_data.axes[6] == 1:
-                self.gear_msg = 78  # N
+                self.gear_msg = 64  # R
             elif joy_data.axes[7] == 1:
-                self.gear_msg = 68  # D
+                self.gear_msg = 30  # D
             elif joy_data.axes[7] == -1:
-                self.gear_msg = 82  # R
+                self.gear_msg = 130  # P
 
         if joy_data.buttons[6] > 0:
             self.ignition_msg = 0
@@ -51,6 +51,10 @@ class publisher(object):
         rospy.init_node('joy_republish', anonymous=True)
         rospy.Subscriber("joy", Joy, self.joy_callback)
         rate = rospy.Rate(20)
+
+        self.gear_msg = 130
+        self.brake_msg = 45
+        self.steering_msg = 127
 
         while not rospy.is_shutdown():
             self.brake_pub.publish(self.brake_msg)

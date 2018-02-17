@@ -53,7 +53,7 @@ void MotorController::update_motor()
   if ( desP > maxPos) {  desP = maxPos; };
 
 
-  //map(mPos, 0, 1023, 0, 255);
+  mPos = map(mPos, 0, 1023, 0, 255);
   if (debug) {  Serial.println(mPos); }
   
   int err =desP - mPos;
@@ -62,7 +62,7 @@ void MotorController::update_motor()
     if (debug) {Serial.println("no err");}
     output = 90;    
   } else if (err < -hyst) {
-      output = 80.0 + ((alpha * err) * (85./1024.));
+      output = 80.0 + ((alpha * err) * (85./255.));
        
       if (output <= 5) { output = 5; }
       
@@ -70,17 +70,18 @@ void MotorController::update_motor()
      
   } else if (err > hyst) {
       
-      output = 100.0 + (alpha * err) * (85./1024.);
+      output = 100.0 + (alpha * err) * (85./255.);
       
       if (output >=175) { output = 175; }
 
       
   }
   output = map(int(output), 0, 180, -127, 127);
+  int int_output = int(output);
   
   if (debug) {Serial.println(output);}
 
-  saber->motor( motorNumber, output);
+  saber->motor( motorNumber, int_output);
   
 };
 
