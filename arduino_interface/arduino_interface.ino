@@ -59,10 +59,10 @@ bool gearInvert = false;
 float gearInitialPos = 400;
 
 // Gear postions
-int parkGearPos = 0;
-int neutralGearPos = 0;
-int  reverseGearPos = 0;
-int driveGearPos = 0;
+int parkGearPos = 470;
+int neutralGearPos = 310;
+int  reverseGearPos = 380;
+int driveGearPos = 260;
                                        
 MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
                                                  gearAlpha, 
