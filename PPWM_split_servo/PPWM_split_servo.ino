@@ -3,8 +3,6 @@
 
 bool DEBUG = true;
 
-
-
 class MotorController
 {
   public: 
@@ -16,8 +14,9 @@ class MotorController
       debug = d;
       maxPos = 1024;
       basePos = bP;
+      desP = basePos;
      };
-     void update_motor(int desP);
+     void update_motor();
      
      void attach_servo()
      {
@@ -26,7 +25,7 @@ class MotorController
 
      float maxPos; // max setting
      float basePos; // ADC measurement when fully retracted.
-
+     float desP; // Set desired position. 
      
   private:
      Servo servo;
@@ -47,20 +46,20 @@ void setup() {
   gearController.attach_servo();
   // steeringController.attach_servo();
   gearController.basePos = 100;
-
+  
 
 };
 
 void loop() {
-  brakeController.update_motor(600); 
-  gearController.update_motor(600);
+  brakeController.update_motor(); 
+  gearController.update_motor();
 // steeringController.update_motor(600);
   
   delay(100);
 }
 
 
-void MotorController::update_motor(int desP)
+void MotorController::update_motor()
 {
  //desP is a number between 0 and 255
   int mPos;
@@ -99,6 +98,5 @@ void MotorController::update_motor(int desP)
   }
 
   servo.write(int(output));
-
   
 };
