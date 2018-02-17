@@ -41,7 +41,7 @@ bool DEBUG = true;
 int brakeEncoderPin = 0;
 int brakeServoPin = 9;
 float brakeAlpha = 5.;
-float brakeBasePos = 380;
+float brakeBasePos = 0;
 bool brakeInvert = false;
 float brakeInitialPos = 0;
 
@@ -56,7 +56,7 @@ int gearServoPin = 10;
 float gearAlpha = 5;
 float gearBasePos = 0;
 bool gearInvert = false;
-float gearInitialPos = 400;
+float gearInitialPos = 470;
 
 // Gear postions
 int parkGearPos = 470 - gearInitialPos;
@@ -233,5 +233,5 @@ void loop(){
   gearController.update_motor();
   steeringController.update_motor();
  
-  delay(50);
+  delay(15);
 }
