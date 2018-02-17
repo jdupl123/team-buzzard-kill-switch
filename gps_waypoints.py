@@ -26,8 +26,9 @@ waypoints_utm = [
 	]
 
 if __name__ == "__main__":
-	f = plt.figure()
-	for x, y in waypoints_utm:
-		f.plot(x[0], y[0])
-
+	# f = plt.figure()
+	a=np.array(waypoints_utm)
+	c=a[:,1,0].astype('float32')
+	b=a[:,0,0].astype('float32')
+	plt.scatter(b,c)
 	plt.show()

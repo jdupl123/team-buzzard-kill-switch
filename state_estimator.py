@@ -40,7 +40,7 @@ class StateEstimator:
 
 			lat = float(parts[3]) # utm -> just assume south and east lol
 			lon = float(parts[5])
-			speed = round(float(parts[7])*1.852, 2) # convert knots to km/s and round cos why have so much precision lol
+			speed = round(float(parts[7])*1.852, 2) # convert knots to km/hr and round cos why have so much precision lol
 			bearing = float(parts[8]) # will be between 0 and 360
 
 			self.state['y'] = lat
