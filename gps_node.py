@@ -19,8 +19,8 @@ def gps_node():
    rate = rospy.Rate(10)
    while not rospy.is_shutdown():
        msg = Odometry()
-       msg.pose.pose.position.x = state_estimator.state['x']
-       msg.pose.pose.position.y = state_estimator.state['y']
+       msg.pose.pose.position.x = state_estimator.state['x']/100.0
+       msg.pose.pose.position.y = state_estimator.state['y']/100.0
        msg.pose.pose.position.z = state_estimator.state['bearing']
        msg.twist.twist.linear.z = state_estimator.state['velocity']
        fixed = state_estimator.state['fixed']
