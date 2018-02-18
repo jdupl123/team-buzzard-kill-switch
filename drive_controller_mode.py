@@ -114,6 +114,7 @@ class DriveController:
 		#################################################################
 		# WARNING: This code needs fixing -> mapping may not be correct #
 		#################################################################
+
 		if vel_err < -20:
 			# rotate servo position -> towards 0 and extend actuator to apply brake
 			# change in force applyed to the car (either through accel or braking)
@@ -121,9 +122,9 @@ class DriveController:
 			if desired_vel_out < -40:
 				desired_vel_out = -40
 
-			accel_mapping = ((-1*desired_vel_out/40)) * 100 + 40 # so 0 -> 140 and 40 -> 40
+			accel_mapping =  0 # pull off the accelerator completely?
 
-			brake_control = 0.5 * accel_mapping # half the power of deccel with the throttle
+			brake_control = 0.75 * 255 # 3 quarter brake
 
 		else:
 			# rotate servo position -> towards 140
@@ -132,10 +133,10 @@ class DriveController:
 			brake_control = 0 # no braking while driving #gottagofast
 
 			desired_vel_out = self.Kv_p * vel_err # + Kv_d * vel_d_err + Kv_i * vel_i_err
-			if desired_vel_out > 40:
-				desired_vel_out = 40
+			if desired_vel_out > 30:
+				desired_vel_out = 30
 
-			accel_mapping = round((1 - (desired_vel_out/40)) * 100 + 40) # so 0 -> 140 and 40 -> 40
+			accel_mapping = round(((desired_vel_out+20)/50) * 255) # so 0 -> 140 and 40 -> 40
 
 		self.steering_pub.publish(steer_output)
 		self.brake_pub.publish(brake_control)
