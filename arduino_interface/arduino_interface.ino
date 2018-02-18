@@ -80,11 +80,14 @@ MotorController gearController = MotorController(gearEncoderPin, gearServoPin,
 
 int steeringEncoderPin = 2;
 int steeringServoPin = 11;
-float steeringAlpha = 5;
+float steeringAlpha = 10;
 float steeringBasePos = 127;
 bool steeringInvert = false;
 float steeringInitialPos = 127;
 int steeringMotorNum = 2;
+int steeringHardLeftLock = 1000;
+int steeringHardRightLock = 400;
+
 
 MotorController steeringController = MotorController(steeringEncoderPin , steeringServoPin,
                                      steeringAlpha, steeringBasePos,
@@ -119,8 +122,8 @@ void throttle_cb( const std_msgs::Int16& throttle_cmd) {
 }
 
 void steering_cb( const std_msgs::Int16& steering_cmd) {
-  //map(steering_cmd.data, 0, 255, -127, 127)
-  steeringController.saber->motor( 2, 120);
+  int bounded_desp = map(steering_cmd.data, 0, 255, steeringHardLeftLock, steeringHardRightLock);
+  steeringController.desP = steering_cmd.data;
 }
 
 void ignition_cb( const std_msgs::Int16& ignition_cmd) {
@@ -186,29 +189,6 @@ void setup() {
   nh.subscribe(sub_brake);
   nh.subscribe(sub_starter);
 
-}
-
-
-void listenToSerial()
-{
-  while (Serial.available() > 0) {
-    char select = Serial.read();
-    int pos = Serial.parseInt();
-    String tmp = Serial.readString(); // Try to read any junk after.....
-
-    switch (select)
-    {
-      case 'g':
-        gearController.desP = pos;
-        break;
-      case 'b':
-        brakeController.desP = pos;
-        break;
-      case 's':
-        steeringController.desP = pos;
-        break;
-    }
-  }
 }
 
 

@@ -1,6 +1,6 @@
 #include <Sabertooth.h>
 
-int hyst = 20;
+int hyst = 10;
 
 class MotorController
 {

@@ -5,7 +5,7 @@ Sabertooth Steering= Sabertooth(128, Serial1);
 Sabertooth Actuators = Sabertooth(129, Serial1);
 
 bool DEBUG = true;
-int hyst = 20;
+int hyst = 10;
 
 class MotorController
 {
@@ -66,7 +66,7 @@ void MotorController::update_motor()
     if (debug) {Serial.println("no err");}
     output = 90;    
   } else if (err < -hyst) {
-      output = 80.0 + ((alpha * err) * (85./1024.));
+      output = 70.0 + ((alpha * err) * (85./1024.));
        
       if (output <= 5) { output = 5; }
       
@@ -74,13 +74,13 @@ void MotorController::update_motor()
      
   } else if (err > hyst) {
       
-      output = 100.0 + (alpha * err) * (85./1024.);
+      output = 110.0 + (alpha * err) * (85./1024.);
       
       if (output >=175) { output = 175; }
 
       
   }
-  output = map(int(output), 0, 180, -127, 127);
+  output = map(int(output), 0, 180, 127, -127);
   
   if (debug) {Serial.println(output);}
 
@@ -91,7 +91,7 @@ void MotorController::update_motor()
 
 MotorController brakeController = MotorController(0, 9, 5., 0,  1, DEBUG, Actuators, "brake"); // brake
 MotorController gearController = MotorController(1, 10, 5., 0,  2, DEBUG, Actuators, "gear"); // gear selector
-MotorController steeringController = MotorController(2 , 11, 5, 0, 2, DEBUG, Steering, "steering"); // to check
+MotorController steeringController = MotorController(2 , 11, 10, 0, 2, DEBUG, Steering, "steering"); // to check
 
 void setup() {
   Serial1.begin(9600);
@@ -111,11 +111,15 @@ void setup() {
 
 void loop() { 
   //brakeController.desP = 200;
-  gearController.desP = 250;
+  //gearController.desP = 250;
+  steeringController.desP = 850;
   //brakeController.update_motor(); 
-  gearController.update_motor();
+  steeringController.update_motor();
+  
+  //gearController.update_motor(); 
+  //brakeController.update_motor();
   //Serial.println("Hello");
-  delay(15);
+  delay(150);
 }
 
 
