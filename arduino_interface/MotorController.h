@@ -19,7 +19,8 @@ class MotorController
       saber = &sab;
       nams = nam;
      };
-     void update_motor();
+     void update_motor_gear();
+     void update_motor_steering();
 
      String nam;
      float maxPos; // max setting
@@ -39,7 +40,7 @@ class MotorController
 };
 
 
-void MotorController::update_motor()
+void MotorController::update_motor_gear()
 {
  //desP is a number between 0 and 255
   int mPos;
@@ -82,6 +83,51 @@ void MotorController::update_motor()
   if (debug) {Serial.println(output);}
 
   saber->motor( motorNumber, int_output);
+  
+};
+
+void MotorController::update_motor_steering()
+{
+ //desP is a number between 0 and 255
+  int mPos;
+  float output;
+  mPos = analogRead(motorEncoderPin);  
+
+  // Add offset
+  desP = desP + basePos;
+
+  // clip desP to min max allowed position.
+  if ( desP > maxPos) {  desP = maxPos; };
+
+
+  //map(mPos, 0, 1023, 0, 255);
+  if (debug) {  Serial.println(mPos); }
+  
+  int err =desP - mPos;
+  //Serial.println
+  if (err <= hyst and err >= -hyst){
+    if (debug) {Serial.println("no err");}
+    output = 90;    
+  } else if (err < -hyst) {
+      output = 70.0 + ((alpha * err) * (85./1024.));
+       
+      if (output <= 5) { output = 5; }
+      
+      if (debug) {Serial.println(output);}
+     
+  } else if (err > hyst) {
+      
+      output = 110.0 + (alpha * err) * (85./1024.);
+      
+      if (output >=175) { output = 175; }
+
+      
+  }
+  output = map(int(output), 0, 180, 127, -127);
+  
+  if (debug) {Serial.println(output);}
+
+  saber->motor( motorNumber, output);
   
 };
 

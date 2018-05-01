@@ -36,7 +36,7 @@ Sabertooth Actuators = Sabertooth(129, Serial1);
 
 ros::NodeHandle  nh;
 
-
+byte PWM_PIN = 12;
 
 // Setup Motor Controllers
 
@@ -85,8 +85,8 @@ float steeringBasePos = 127;
 bool steeringInvert = false;
 float steeringInitialPos = 127;
 int steeringMotorNum = 2;
-int steeringHardLeftLock = 1000;
-int steeringHardRightLock = 400;
+int steeringHardLeftLock = 750;
+int steeringHardRightLock = 250;
 
 
 MotorController steeringController = MotorController(steeringEncoderPin , steeringServoPin,
@@ -122,12 +122,12 @@ void throttle_cb( const std_msgs::Int16& throttle_cmd) {
 }
 
 void steering_cb( const std_msgs::Int16& steering_cmd) {
-  int bounded_desp = map(steering_cmd.data, 0, 255, steeringHardLeftLock, steeringHardRightLock);
-  steeringController.desP = steering_cmd.data;
+  int bounded_desp = map(steering_cmd.data, 0, 255, steeringHardRightLock, steeringHardLeftLock);
+  steeringController.desP = bounded_desp;
 }
 
 void ignition_cb( const std_msgs::Int16& ignition_cmd) {
-  if (ignition_cmd.data > 0) {
+  if (ignition_cmd.data > 0 & pulseIn(PWM_PIN, HIGH) > 1100) {
     digitalWrite(ignitionPin, HIGH);
   } else {
     digitalWrite(ignitionPin, LOW);
@@ -179,7 +179,7 @@ void setup() {
   pinMode(ignitionPin, OUTPUT);
   pinMode(starterPin, OUTPUT);
 
-  steeringController.saber->motor( 2, 0);
+  pinMode(PWM_PIN, INPUT);
 
   nh.initNode();
   nh.subscribe(sub_throttle);
@@ -191,11 +191,28 @@ void setup() {
 
 }
 
+int off_counter = 0;
 
 void loop() {
   nh.spinOnce();
-  brakeController.update_motor();
-  gearController.update_motor();
-  steeringController.update_motor();
-  delay(1000);
+
+  if (pulseIn(PWM_PIN, HIGH) < 1100) {
+    off_counter = off_counter + 1;
+  } else {
+    off_counter = off_counter - 1;
+  }
+
+  if (off_counter < 0 ) off_counter = 0;
+
+  if (off_counter > 10) {
+    digitalWrite(ignitionPin, LOW);
+    off_counter = 10+1;
+  }
+  
+  
+  brakeController.update_motor_gear();
+  gearController.update_motor_gear();
+  steeringController.update_motor_steering();
+  
+  delay(100);
 }

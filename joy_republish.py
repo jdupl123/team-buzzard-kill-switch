@@ -32,7 +32,7 @@ class publisher(object):
             elif joy_data.axes[7] == 1:
                 self.gear_msg = 30  # D
             elif joy_data.axes[7] == -1:
-                self.gear_msg = 130  # P
+                self.gear_msg = 125  # P
 
         if joy_data.buttons[6] > 0:
             self.ignition_msg = 0
